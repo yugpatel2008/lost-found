@@ -22,32 +22,29 @@
         class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 md:p-8 space-y-8">
         {% csrf_token %}
 
-        <!-- Item Type -->
+        <!-- Item Type Selection -->
         <div>
             <h2 class="text-xl font-semibold mb-4">Item Type</h2>
-            <div class="flex gap-4">
-                <label
-                    class="type-btn type-lost flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
-                    <input type="radio" name="item_type_radio" value="lost" class="hidden" checked>
-                    <div class="flex flex-col items-center">
-                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
-                        <span>I've Lost an Item</span>
-                        <div class="mt-1 text-sm opacity-70">Looking for my belongings</div>
-                    </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <label id="card-lost" onclick="selectType('lost')"
+                    class="type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-red-500 bg-red-50 text-red-700 shadow-sm">
+                    <input type="radio" name="item_type" id="radio-type-lost" value="lost" class="hidden" checked>
+                    <i class="fas fa-exclamation-triangle text-3xl mb-2"></i>
+                    <span class="font-bold text-lg">I've Lost an Item</span>
+                    <span class="text-xs opacity-75 mt-1">Looking for my belongings</span>
                 </label>
 
-                <label
-                    class="type-btn type-found flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
-                    <input type="radio" name="item_type_radio" value="found" class="hidden">
-                    <div class="flex flex-col items-center">
-                        <i class="fas fa-check-circle text-2xl mb-2"></i>
-                        <span>I've Found an Item</span>
-                        <div class="mt-1 text-sm opacity-70">Trying to return to owner</div>
-                    </div>
+                <label id="card-found" onclick="selectType('found')"
+                    class="type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-gray-200 bg-gray-50 text-gray-600 hover:border-green-300">
+                    <input type="radio" name="item_type" id="radio-type-found" value="found" class="hidden">
+                    <i class="fas fa-check-circle text-3xl mb-2"></i>
+                    <span class="font-bold text-lg">I've Found an Item</span>
+                    <span class="text-xs opacity-75 mt-1">Trying to return to owner</span>
                 </label>
             </div>
-            <input type="hidden" name="item_type" id="selected-type" value="lost">
+            <input type="hidden" name="type" id="selected-type" value="lost">
         </div>
+
 
 
         <!-- Item Name -->
@@ -208,31 +205,48 @@
 </div>
 
 <script>
-    // Show/hide meetup section based on item type selection
-    document.addEventListener('DOMContentLoaded', function () {
-        function updateMeetupSection() {
-            const hiddenVal = document.getElementById('selected-type').value;
-            const meetupSection = document.getElementById('meetup-section');
-            if (hiddenVal === 'found') {
+    function selectType(type) {
+        const radioLost = document.getElementById('radio-type-lost');
+        const radioFound = document.getElementById('radio-type-found');
+        const cardLost = document.getElementById('card-lost');
+        const cardFound = document.getElementById('card-found');
+        const meetupSection = document.getElementById('meetup-section');
+        const hiddenType = document.getElementById('selected-type');
+
+        if (hiddenType) hiddenType.value = type;
+
+        if (type === 'found') {
+            if (radioFound) radioFound.checked = true;
+            if (radioLost) radioLost.checked = false;
+
+            if (cardFound) {
+                cardFound.className = "type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-green-500 bg-green-50 text-green-700 shadow-sm";
+            }
+            if (cardLost) {
+                cardLost.className = "type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-gray-200 bg-gray-50 text-gray-600 hover:border-red-300";
+            }
+            if (meetupSection) {
                 meetupSection.classList.remove('hidden');
-            } else {
+            }
+        } else {
+            if (radioLost) radioLost.checked = true;
+            if (radioFound) radioFound.checked = false;
+
+            if (cardLost) {
+                cardLost.className = "type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-red-500 bg-red-50 text-red-700 shadow-sm";
+            }
+            if (cardFound) {
+                cardFound.className = "type-card border-2 rounded-xl p-5 flex flex-col items-center cursor-pointer transition-all border-gray-200 bg-gray-50 text-gray-600 hover:border-green-300";
+            }
+            if (meetupSection) {
                 meetupSection.classList.add('hidden');
             }
         }
+    }
 
-        // Observe changes to the hidden input (set by Base.js toggleItemType)
-        const hiddenInput = document.getElementById('selected-type');
-        const observer = new MutationObserver(updateMeetupSection);
-        observer.observe(hiddenInput, { attributes: true, attributeFilter: ['value'] });
-
-        // Also wire type buttons directly
-        document.querySelectorAll('.type-btn').forEach(btn => {
-            btn.addEventListener('click', function () {
-                setTimeout(updateMeetupSection, 10); // after Base.js updates hidden input
-            });
-        });
-
-        updateMeetupSection();
+    document.addEventListener('DOMContentLoaded', function () {
+        selectType('lost');
     });
 </script>
+
 {% endblock %}

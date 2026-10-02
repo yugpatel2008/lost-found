@@ -11,42 +11,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ─── Post Page: Item Type Toggle ─────────────────────────────────────────────
 function toggleItemType(type) {
-    const hiddenInput = document.getElementById('selected-type');
-    if (!hiddenInput) return; // Not on post page, skip
-
-    hiddenInput.value = type;
-
-    // Reset all buttons
-    document.querySelectorAll('.type-btn').forEach(btn => {
-        btn.classList.remove('bg-primary/10', 'ring-2', 'ring-primary', 'text-primary');
-        btn.classList.add('bg-gray-100', 'text-gray-600');
-    });
-
-    // Highlight selected button
-    const activeBtn = document.querySelector(`.type-btn.type-${type}`);
-    if (activeBtn) {
-        activeBtn.classList.remove('bg-gray-100', 'text-gray-600');
-        activeBtn.classList.add('bg-primary/10', 'ring-2', 'ring-primary', 'text-primary');
+    if (typeof selectType === 'function') {
+        selectType(type);
     }
 }
 
-document.addEventListener('DOMContentLoaded', function () {
-    // Wire up type buttons if they exist (post page only)
-    const typeBtns = document.querySelectorAll('.type-btn');
-    if (typeBtns.length > 0) {
-        typeBtns.forEach(btn => {
-            btn.addEventListener('click', function () {
-                const type = btn.classList.contains('type-lost') ? 'lost' : 'found';
-                toggleItemType(type);
-                // Also check the underlying radio
-                const radio = btn.querySelector('input[type="radio"]');
-                if (radio) radio.checked = true;
-            });
-        });
-        // Default: activate "lost"
-        toggleItemType('lost');
-    }
-});
 
 // ─── Home Page: Search ───────────────────────────────────────────────────────
 function handleHomeSearch(event) {
