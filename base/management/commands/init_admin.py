@@ -18,20 +18,19 @@ class Command(BaseCommand):
                 'is_superuser': True,
             }
         )
-        if created or not admin_user.check_password('admin123'):
-            admin_user.set_password('admin123')
-            admin_user.is_staff = True
-            admin_user.is_superuser = True
-            admin_user.save()
-            self.stdout.write(self.style.SUCCESS('Admin user ready (admin / admin123)'))
+        admin_user.set_password('admin123')
+        admin_user.is_staff = True
+        admin_user.is_superuser = True
+        admin_user.save()
 
-        if hasattr(admin_user, 'profile'):
-            admin_user.profile.role = 'principal'
-            admin_user.profile.department = 'All Departments'
-            admin_user.profile.save()
+        profile, _ = UserProfile.objects.get_or_create(user=admin_user)
+        profile.role = 'principal'
+        profile.department = 'All Departments'
+        profile.save()
+        self.stdout.write(self.style.SUCCESS('Admin user reset: admin / admin123'))
 
         # 2. Student User: dhruvmakvana.26.cse
-        student1, s1_created = User.objects.get_or_create(
+        student1, _ = User.objects.get_or_create(
             username='dhruvmakvana.26.cse',
             defaults={
                 'email': 'dhruvmakvana.26.cse@indusuni.ac.in',
@@ -39,13 +38,15 @@ class Command(BaseCommand):
                 'last_name': 'Makvana',
             }
         )
-        if s1_created or not student1.check_password('!ABW46k.Xn4hVyF'):
-            student1.set_password('!ABW46k.Xn4hVyF')
-            student1.save()
-            self.stdout.write(self.style.SUCCESS('User dhruvmakvana.26.cse ready'))
+        student1.set_password('!ABW46k.Xn4hVyF')
+        student1.save()
+        profile1, _ = UserProfile.objects.get_or_create(user=student1)
+        profile1.role = 'student'
+        profile1.save()
+        self.stdout.write(self.style.SUCCESS('User dhruvmakvana.26.cse reset'))
 
         # 3. Student User: patelyug.26.cse
-        student2, s2_created = User.objects.get_or_create(
+        student2, _ = User.objects.get_or_create(
             username='patelyug.26.cse',
             defaults={
                 'email': 'patelyug.26.cse@indusuni.ac.in',
@@ -53,9 +54,11 @@ class Command(BaseCommand):
                 'last_name': 'Patel',
             }
         )
-        if s2_created or not student2.check_password('!ABW46k.Xn4hVyF'):
-            student2.set_password('!ABW46k.Xn4hVyF')
-            student2.save()
-            self.stdout.write(self.style.SUCCESS('User patelyug.26.cse ready'))
+        student2.set_password('!ABW46k.Xn4hVyF')
+        student2.save()
+        profile2, _ = UserProfile.objects.get_or_create(user=student2)
+        profile2.role = 'student'
+        profile2.save()
+        self.stdout.write(self.style.SUCCESS('User patelyug.26.cse reset'))
 
         self.stdout.write(self.style.SUCCESS('Default accounts initialization complete!'))
