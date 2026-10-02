@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: lost-found-app
+    env: python
+    buildCommand: "./build.sh"
+    startCommand: "gunicorn Lost_Found.wsgi:application"
+    envVars:
+      - key: SECRET_KEY
+        generateValue: true
+      - key: DEBUG
+        value: "False"
+      - key: PYTHON_VERSION
+        value: "3.11.9"
+      - key: DATABASE_URL
+        fromDatabase:
+          name: lost-found-db
+          property: connectionString
+
+databases:
+  - name: lost-found-db
+    databaseName: lostfound_db
+    user: lostfound_user

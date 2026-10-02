@@ -1,0 +1,23 @@
+Django>=5.0,<6.0
+Pillow
+
+# PostgreSQL
+psycopg2-binary
+dj-database-url
+
+# Environment variables
+python-decouple
+
+# Production static files
+whitenoise
+
+# Production server
+openpyxl
+gunicorn
+
+# Email (optional: only needed if using SendGrid instead of SMTP)
+# sendgrid
+
+# Media storage on Render (Cloudinary)
+cloudinary
+django-cloudinary-storage

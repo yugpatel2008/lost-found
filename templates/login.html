@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto my-10">
+    <div class="text-center mb-10">
+        <div class="bg-primary w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-unlock-alt text-white text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold">Welcome to Indus Uni. Lost & Found</h1>
+        <p class="text-gray-600 mt-2">Sign in to access all features</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <div class="space-y-6">
+
+            {% if messages %}
+            {% for message in messages %}
+            <p class="text-red-500 text-sm">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
+
+            <form method="POST" action="">
+                {% csrf_token %}
+                {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+                {% endif %}
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Email or Username</label>
+                    <input type="text" name="email" placeholder="student@iite.indusuni.ac.in or username"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        required>
+                </div>
+
+                <div>
+                    <div class="flex items-center justify-between mb-2">
+                        <label class="block text-gray-700 font-medium">Password</label>
+                    </div>
+                    <input type="password" name="password" placeholder="Enter password"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                        required>
+                </div>
+
+                <div class="flex items-center mt-2">
+                    <input type="checkbox" id="remember" class="h-4 w-4 text-primary rounded border-gray-300">
+                    <label for="remember" class="ml-2 block text-gray-600 text-sm">Remember me for 30 days</label>
+                </div>
+
+                <button type="submit"
+                    class="w-full bg-primary hover:bg-primary/90 text-white py-3.5 rounded-lg font-medium mt-4">
+                    Sign In
+                </button>
+
+                <div class="mt-6 text-center text-sm">
+                    <p class="text-gray-500">
+                        <i class="fas fa-info-circle mr-1 text-blue-400"></i>
+                        Accounts are created by your institution's administrator.<br>
+                        Contact your HOD or Principal if you don't have access.
+                    </p>
+                    <div class="mt-3">
+                        <a href="{% url 'dashboard' %}" class="text-blue-600 hover:text-blue-800 text-xs font-semibold">
+                            <i class="fas fa-user-shield mr-1"></i> Go to Admin Dashboard
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

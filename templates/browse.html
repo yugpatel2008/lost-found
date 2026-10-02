@@ -1,0 +1,147 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- Browse Header & Filters -->
+<div class="mb-8">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+            <h1 class="text-3xl font-bold">Browse Items</h1>
+            <p class="text-gray-500 mt-1">{{ items|length }} item{{ items|length|pluralize }} listed</p>
+        </div>
+        <div class="flex gap-3 flex-wrap">
+            <a href="?type=lost" class="px-4 py-2 rounded-lg border {% if request.GET.type == 'lost' %}bg-yellow-100 border-yellow-300 text-yellow-700 font-semibold{% else %}border-gray-200 bg-white text-gray-700 hover:bg-gray-50{% endif %} text-sm transition">
+                <i class="fas fa-exclamation-triangle mr-1.5"></i> Lost
+            </a>
+            <a href="?type=found" class="px-4 py-2 rounded-lg border {% if request.GET.type == 'found' %}bg-green-100 border-green-300 text-green-700 font-semibold{% else %}border-gray-200 bg-white text-gray-700 hover:bg-gray-50{% endif %} text-sm transition">
+                <i class="fas fa-check-circle mr-1.5"></i> Found
+            </a>
+            <a href="{% url 'browse' %}" class="px-4 py-2 rounded-lg border border-gray-200 bg-white text-gray-700 hover:bg-gray-50 text-sm transition">
+                <i class="fas fa-list mr-1.5"></i> All
+            </a>
+        </div>
+    </div>
+
+    <!-- Search bar -->
+    <div class="relative max-w-lg">
+        <input type="text"
+               id="browse-search"
+               placeholder="Search items, tags, location..."
+               value="{{ request.GET.q }}"
+               class="w-full p-3 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
+               oninput="filterBrowse()">
+        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+    </div>
+</div>
+
+<!-- Items Grid -->
+<div id="browse-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for i in items %}
+    <div class="item-card bg-white border border-gray-100 rounded-xl shadow hover:shadow-md transition-all overflow-hidden"
+         data-name="{{ i.name|lower }}"
+         data-desc="{{ i.description|lower }}"
+         data-tags="{{ i.tags|lower }}"
+         data-location="{{ i.location_found|lower }}"
+         data-type="{{ i.item_type|lower }}">
+        <div class="relative">
+            {% if i.file %}
+                <img src="{{ i.file.url }}" alt="Item Image" class="object-cover h-48 w-full">
+            {% else %}
+                <div class="bg-gray-100 h-48 w-full flex items-center justify-center">
+                    <i class="fas fa-box text-4xl text-gray-300"></i>
+                </div>
+            {% endif %}
+            <div class="absolute top-3 right-3 {% if i.item_type == 'lost' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %} py-1 px-2.5 rounded-full text-xs font-semibold uppercase">
+                {{ i.item_type }}
+            </div>
+        </div>
+
+        <div class="p-5">
+            <div class="flex items-start justify-between mb-2">
+                <h3 class="text-lg font-bold leading-snug">{{ i.name }}</h3>
+            </div>
+
+            <p class="text-gray-600 text-sm overflow-hidden mb-4" style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{ i.description }}</p>
+
+            <div class="grid grid-cols-2 gap-2 mb-4 text-sm">
+                <div class="flex items-center text-gray-600">
+                    <i class="fas fa-map-marker-alt mr-2 text-primary flex-shrink-0"></i>
+                    <span class="truncate">{{ i.location_found }}</span>
+                </div>
+                <div class="flex items-center text-gray-600">
+                    <i class="fas fa-calendar-alt mr-2 text-primary flex-shrink-0"></i>
+                    <span>{{ i.date_found }}</span>
+                </div>
+            </div>
+
+            {% if i.tag_list %}
+            <div class="flex flex-wrap gap-1.5 mb-4">
+                {% for tag in i.tag_list %}
+                    <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">{{ tag }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <a href="{% url 'item_detail' i.id %}" class="w-full block bg-gray-50 hover:bg-primary hover:text-white text-primary py-2.5 rounded-lg font-medium transition text-center text-sm border border-gray-200 hover:border-primary">
+                View Details <i class="fas fa-arrow-right ml-1 text-xs"></i>
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-3 text-center py-20">
+        <i class="fas fa-box-open text-5xl text-gray-300 mb-4 block"></i>
+        <h2 class="text-xl text-gray-600 font-semibold">No items found</h2>
+        <p class="text-gray-400 mt-2">Try adjusting your filters or <a href="{% url 'post' %}" class="text-primary font-medium">post a new item</a>!</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- No results message (shown by JS filter) -->
+<div id="no-results" class="hidden text-center py-16">
+    <i class="fas fa-search text-4xl text-gray-300 mb-3 block"></i>
+    <p class="text-gray-500 text-lg">No items match your search.</p>
+</div>
+
+<script>
+function filterBrowse() {
+    const q = document.getElementById('browse-search').value.toLowerCase().trim();
+    const cards = document.querySelectorAll('#browse-grid .item-card');
+    let shown = 0;
+    cards.forEach(card => {
+        const text = [
+            card.dataset.name,
+            card.dataset.desc,
+            card.dataset.tags,
+            card.dataset.location,
+            card.dataset.type
+        ].join(' ');
+        const visible = !q || text.includes(q);
+        card.style.display = visible ? '' : 'none';
+        if (visible) shown++;
+    });
+    document.getElementById('no-results').classList.toggle('hidden', shown > 0);
+}
+
+// Apply URL search param on load
+document.addEventListener('DOMContentLoaded', function() {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q') || '';
+    const type = params.get('type') || '';
+    if (q) {
+        document.getElementById('browse-search').value = q;
+    }
+    if (q || type) {
+        const cards = document.querySelectorAll('#browse-grid .item-card');
+        let shown = 0;
+        cards.forEach(card => {
+            const matchQ = !q || [card.dataset.name, card.dataset.desc, card.dataset.tags, card.dataset.location].join(' ').includes(q.toLowerCase());
+            const matchType = !type || card.dataset.type === type.toLowerCase();
+            const visible = matchQ && matchType;
+            card.style.display = visible ? '' : 'none';
+            if (visible) shown++;
+        });
+        document.getElementById('no-results').classList.toggle('hidden', shown > 0);
+    }
+});
+</script>
+
+{% endblock %}

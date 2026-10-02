@@ -1,0 +1,48 @@
+{% load static %}
+<footer class="py-10 bg-dark text-white">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+
+            <!-- Brand -->
+            <div>
+                <h3 class="text-lg font-bold mb-4">Indus Uni. Lost &amp; Found</h3>
+                <p class="text-gray-300 text-sm">Helping you reunite with your lost items.</p>
+            </div>
+
+            <!-- Navigation -->
+            <div>
+                <h4 class="font-semibold mb-4">Navigation</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li><a href="{% url 'home' %}" class="hover:text-primary transition-colors">Home</a></li>
+                    <li><a href="{% url 'post' %}" class="hover:text-primary transition-colors">Post Item</a></li>
+                    <li><a href="{% url 'browse' %}" class="hover:text-primary transition-colors">Browse Items</a></li>
+                </ul>
+            </div>
+
+            <!-- Resources -->
+            <div>
+
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h4 class="font-semibold mb-4">Contact</h4>
+                <ul class="space-y-2 text-gray-300">
+                    <li class="flex items-center">
+                        <i class="fas fa-envelope mr-2 text-primary"></i>
+                        cyug117@gmail.com &nbsp; ddhruv828@gmail.com
+                    </li>
+                    <li class="flex items-center">
+                        <i class="fas fa-map-marker-alt mr-2 text-primary"></i>
+                        Indus University, Ahmedabad
+                    </li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="border-t border-gray-700 mt-10 pt-6 text-center text-gray-400 text-sm">
+            &copy; 2026 Indus Uni. Lost &amp; Found Portal. All rights reserved.
+        </div>
+    </div>
+</footer>

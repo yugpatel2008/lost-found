@@ -1,0 +1,250 @@
+{% extends "base.html" %}
+{% block content %}
+<div id="home-view" class="flex flex-col space-y-16">
+    <!-- Hero Section -->
+    <section class="bg-gradient-to-r from-primary to-accent text-white py-16 rounded-xl shadow-lg">
+        <div class="max-w-2xl mx-auto text-center px-4">
+            <h1 class="text-4xl md:text-5xl font-bold mb-6">Find What You've Lost, Return What You've Found</h1>
+            <p class="text-xl mb-8 opacity-90">Join thousands of students helping each other reunite with lost items on
+                Indus Uni..</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="{% url 'post' %}"
+                    class="bg-white hover:bg-gray-100 text-primary font-bold py-3 px-6 rounded-lg flex items-center justify-center">
+                    <i class="far fa-frown mr-2 text-warning"></i>
+                    Report Lost Item
+                </a>
+                <a href="{% url 'post' %}"
+                    class="bg-transparent border-2 border-white hover:bg-white/10 font-bold py-3 px-6 rounded-lg flex items-center justify-center">
+                    <i class="far fa-check-circle mr-2 text-secondary"></i>
+                    Report Found Item
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Quick Search Section -->
+    <section>
+        <div class="max-w-2xl mx-auto relative">
+            <div class="relative">
+                <input type="text" id="home-search" placeholder="Search for lost items..."
+                    class="w-full p-4 pl-12 rounded-xl border border-gray-300 focus:ring-2 focus:ring-primary focus:outline-none shadow-sm"
+                    onkeyup="handleHomeSearch(event)">
+                <i class="fas fa-search absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400"></i>
+            </div>
+        </div>
+    </section>
+
+    <!-- Statistics Section -->
+    <section id="stats-section">
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-10">Our Impact in the Community</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+            <div
+                class="stats-card bg-white border border-gray-100 rounded-xl p-6 text-center transition-all shadow hover:shadow-md">
+                <div class="text-4xl font-bold text-primary mb-2">
+                    <span id="stat-total" class="stat-counter">0</span>
+                </div>
+                <div class="text-gray-600 font-medium">Items Reported</div>
+                <div class="mt-1 text-xs text-gray-400">Total posts on the platform</div>
+                <div class="mt-4 flex justify-center">
+                    <i class="fas fa-box-open text-4xl text-primary opacity-20"></i>
+                </div>
+            </div>
+
+            <div
+                class="stats-card bg-white border border-gray-100 rounded-xl p-6 text-center transition-all shadow hover:shadow-md">
+                <div class="text-4xl font-bold text-secondary mb-2">
+                    <span id="stat-found" class="stat-counter">0</span>
+                </div>
+                <div class="text-gray-600 font-medium">Items Found &amp; Returned</div>
+                <div class="mt-1 text-xs text-gray-400">Posted as "found" by finders</div>
+                <div class="mt-4 flex justify-center">
+                    <i class="fas fa-handshake text-4xl text-secondary opacity-20"></i>
+                </div>
+            </div>
+
+            <div
+                class="stats-card bg-white border border-gray-100 rounded-xl p-6 text-center transition-all shadow hover:shadow-md">
+                <div class="text-4xl font-bold text-accent mb-2">
+                    <span id="stat-users" class="stat-counter">0</span>
+                </div>
+                <div class="text-gray-600 font-medium">Registered Users</div>
+                <div class="mt-1 text-xs text-gray-400">Community members helping each other</div>
+                <div class="mt-4 flex justify-center">
+                    <i class="fas fa-users text-4xl text-accent opacity-20"></i>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <script>
+        (function () {
+            let animated = false;
+
+            function easeOutQuart(t) {
+                return 1 - Math.pow(1 - t, 4);
+            }
+
+            function animateCounter(el, target, duration) {
+                const start = performance.now();
+                function step(now) {
+                    const elapsed = now - start;
+                    const progress = Math.min(elapsed / duration, 1);
+                    const eased = easeOutQuart(progress);
+                    const current = Math.round(eased * target);
+                    el.textContent = current.toLocaleString();
+                    if (progress < 1) requestAnimationFrame(step);
+                    else el.textContent = target.toLocaleString();
+                }
+                requestAnimationFrame(step);
+            }
+
+            function loadAndAnimate() {
+                if (animated) return;
+                animated = true;
+
+                // Show loading pulse while fetching
+                ['stat-total', 'stat-found', 'stat-users'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) el.textContent = '—';
+                });
+
+                fetch('/api/stats/')
+                    .then(r => r.json())
+                    .then(data => {
+                        const map = {
+                            'stat-total': data.total_items || 0,
+                            'stat-found': data.found_items || 0,
+                            'stat-users': data.total_users || 0,
+                        };
+                        Object.entries(map).forEach(([id, val]) => {
+                            const el = document.getElementById(id);
+                            if (el) animateCounter(el, val, 1800);
+                        });
+                    })
+                    .catch(() => {
+                        ['stat-total', 'stat-found', 'stat-users'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.textContent = 'N/A';
+                        });
+                    });
+            }
+
+            // Trigger when section scrolls into view
+            const section = document.getElementById('stats-section');
+            if (section && 'IntersectionObserver' in window) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            loadAndAnimate();
+                            observer.disconnect();
+                        }
+                    });
+                }, { threshold: 0.3 });
+                observer.observe(section);
+            } else if (section) {
+                // Fallback for old browsers
+                loadAndAnimate();
+            }
+        })();
+    </script>
+
+    <!-- Recent Posts Section -->
+    <section>
+        <div class="flex justify-between items-center mb-6">
+            <h2 class="text-2xl md:text-3xl font-bold">Recent Posts</h2>
+            <a href="{% url 'browse' %}" class="text-primary font-medium hover:underline">
+                View All <i class="fas fa-arrow-right ml-1"></i>
+            </a>
+        </div>
+
+        {% if recent_items %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for item in recent_items %}
+            <div
+                class="bg-white border border-gray-100 rounded-xl shadow hover:shadow-md transition-all overflow-hidden">
+                <div class="relative">
+                    {% if item.file %}
+                    <img src="{{ item.file.url }}" alt="{{ item.name }}" class="object-cover h-40 w-full">
+                    {% else %}
+                    <div class="bg-gray-100 h-40 w-full flex items-center justify-center">
+                        <i class="fas fa-box text-3xl text-gray-300"></i>
+                    </div>
+                    {% endif %}
+                    <div
+                        class="absolute top-3 right-3 {% if item.item_type == 'lost' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %} py-1 px-2.5 rounded-full text-xs font-semibold">
+                        {{ item.item_type|upper }}
+                    </div>
+                </div>
+                <div class="p-5">
+                    <h3 class="text-lg font-bold mb-1 leading-snug">{{ item.name }}</h3>
+                    <p class="text-gray-500 text-sm mb-3 overflow-hidden"
+                        style="display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;">{{
+                        item.description }}</p>
+                    <div class="flex items-center text-sm text-gray-500 mb-3 gap-3">
+                        <span class="flex items-center gap-1 truncate">
+                            <i class="fas fa-map-marker-alt text-primary flex-shrink-0"></i>
+                            {{ item.location_found }}
+                        </span>
+                        <span class="flex items-center gap-1 flex-shrink-0">
+                            <i class="fas fa-calendar-alt text-primary"></i>
+                            {{ item.date_found }}
+                        </span>
+                    </div>
+                    {% if item.tag_list %}
+                    <div class="flex flex-wrap gap-1 mb-3">
+                        {% for tag in item.tag_list %}
+                        <span class="bg-gray-100 text-gray-600 py-0.5 px-2 rounded-full text-xs">{{ tag }}</span>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <a href="{% url 'item_detail' item.id %}"
+                        class="w-full block bg-gray-50 hover:bg-primary hover:text-white text-primary py-2.5 rounded-lg font-medium transition text-center text-sm border border-gray-100 hover:border-primary">
+                        View Details <i class="fas fa-arrow-right ml-1 text-xs"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-14 text-gray-400">
+            <i class="fas fa-box-open text-5xl mb-4 block text-gray-200"></i>
+            <p class="text-lg font-medium text-gray-500">No items posted yet.</p>
+            <a href="{% url 'post' %}" class="mt-3 inline-block text-primary font-medium hover:underline">Be the first
+                to post!</a>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- How it Works Section -->
+    <section>
+        <h2 class="text-2xl md:text-3xl font-bold text-center mb-10">How It Works</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="how-card bg-white rounded-xl p-6 border border-gray-100 shadow hover:shadow-lg transition-all">
+                <div class="h-12 w-12 rounded-full bg-primary/10 text-primary flex items-center justify-center mb-4">
+                    <i class="fas fa-cloud-upload-alt text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Post Your Item</h3>
+                <p class="text-gray-600">Report lost or found items with details and photos to help identification.</p>
+            </div>
+            <div class="how-card bg-white rounded-xl p-6 border border-gray-100 shadow hover:shadow-lg transition-all">
+                <div
+                    class="h-12 w-12 rounded-full bg-secondary/10 text-secondary flex items-center justify-center mb-4">
+                    <i class="fas fa-cogs text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Smart Matching</h3>
+                <p class="text-gray-600">Our AI instantly searches for matching reports and notifies both parties.</p>
+            </div>
+            <div class="how-card bg-white rounded-xl p-6 border border-gray-100 shadow hover:shadow-lg transition-all">
+                <div class="h-12 w-12 rounded-full bg-accent/10 text-accent flex items-center justify-center mb-4">
+                    <i class="fas fa-comments text-xl"></i>
+                </div>
+                <h3 class="text-xl font-bold mb-2">Get Connected</h3>
+                <p class="text-gray-600">Securely contact the other party to arrange for pickup or retrieval.</p>
+            </div>
+        </div>
+    </section>
+</div>
+
+{% endblock %}

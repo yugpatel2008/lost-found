@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-md mx-auto my-10">
+    <div class="text-center mb-10">
+        <div class="bg-primary w-16 h-16 rounded-lg flex items-center justify-center mx-auto mb-4">
+            <i class="fas fa-user-plus text-white text-2xl"></i>
+        </div>
+        <h1 class="text-3xl font-bold">Create Your Account</h1>
+        <p class="text-gray-600 mt-2">Join our community to report and find lost items</p>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-8">
+        <form method="POST" action="" class="space-y-6">
+            {% csrf_token %}
+
+            {% if messages %}
+            {% for message in messages %}
+            <div class="text-red-500 text-sm">{{ message }}</div>
+            {% endfor %}
+            {% endif %}
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">First Name</label>
+                    <input type="text" required name="fname" placeholder="John"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">Last Name</label>
+                    <input type="text" required name="lname" placeholder="Doe"
+                        class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Email</label>
+                <input type="email" required name="email" placeholder="your.email@Indus Uni..edu"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <p class="mt-1 text-xs text-gray-500">Must be a valid email address</p>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Student ID</label>
+                <input type="text" required name="student_id" placeholder="236400316001"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Password</label>
+                <input type="password" required name="password" placeholder="Create a password"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <p class="mt-1 text-xs text-gray-500">At least 8 characters with a mix of letters, numbers & symbols</p>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Confirm Password</label>
+                <input type="password" required name="confirm_password" placeholder="Confirm your password"
+                    class="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" id="terms" required class="h-4 w-4 text-primary rounded border-gray-300">
+                <label for="terms" class="ml-2 block text-gray-600 text-sm">
+                    I agree to the <a href="#" class="text-primary">Terms of Service</a> and
+                    <a href="#" class="text-primary">Privacy Policy</a>
+                </label>
+            </div>
+
+            <div class="flex items-center">
+                <input type="checkbox" id="newsletter" class="h-4 w-4 text-primary rounded border-gray-300">
+                <label for="newsletter" class="ml-2 block text-gray-600 text-sm">
+                    Subscribe to our newsletter for updates
+                </label>
+            </div>
+
+            <button type="submit"
+                class="w-full bg-primary hover:bg-primary/90 text-white py-3.5 rounded-lg font-medium">
+                Create Account
+            </button>
+
+            <div class="mt-4 text-center text-sm">
+                <p class="text-gray-600">
+                    Already have an account?
+                    <a href="{% url 'login' %}" class="text-primary font-medium">Sign in here</a>
+                </p>
+            </div>
+        </form>
+    </div>
+
+    <div class="mt-8 bg-blue-50 border-l-4 border-blue-400 p-4 rounded-lg">
+        <div class="flex">
+            <div class="flex-shrink-0">
+                <i class="fas fa-info-circle text-blue-400 text-xl"></i>
+            </div>
+            <div class="ml-3">
+                <h3 class="text-sm font-medium text-blue-800">Verification Required</h3>
+                <div class="mt-1 text-sm text-blue-700">
+                    After signing up, you'll receive a verification email to activate your account.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

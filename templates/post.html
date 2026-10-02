@@ -1,0 +1,237 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto space-y-10">
+    <div class="text-center">
+        <h1 class="text-3xl md:text-4xl font-bold">Post a Lost or Found Item</h1>
+        <p class="text-gray-600 mt-2 max-w-lg mx-auto">Help reunite lost items with their owners by providing as much
+            detail as possible.</p>
+    </div>
+
+    {% if messages %}
+    {% for message in messages %}
+    <div
+        class="{% if message.tags == 'success' %}bg-green-50 border-l-4 border-green-400 text-green-800{% else %}bg-red-50 border-l-4 border-red-400 text-red-800{% endif %} p-4 rounded-lg">
+        <i
+            class="fas {% if message.tags == 'success' %}fa-check-circle text-green-500{% else %}fa-exclamation-circle text-red-500{% endif %} mr-2"></i>
+        {{ message }}
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    <form method="post" enctype="multipart/form-data"
+        class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 md:p-8 space-y-8">
+        {% csrf_token %}
+
+        <!-- Item Type -->
+        <div>
+            <h2 class="text-xl font-semibold mb-4">Item Type</h2>
+            <div class="flex gap-4">
+                <label
+                    class="type-btn type-lost flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
+                    <input type="radio" name="item_type" value="lost" class="hidden" checked>
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
+                        <span>I've Lost an Item</span>
+                        <div class="mt-1 text-sm opacity-70">Looking for my belongings</div>
+                    </div>
+                </label>
+
+                <label
+                    class="type-btn type-found flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
+                    <input type="radio" name="item_type" value="found" class="hidden">
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-check-circle text-2xl mb-2"></i>
+                        <span>I've Found an Item</span>
+                        <div class="mt-1 text-sm opacity-70">Trying to return to owner</div>
+                    </div>
+                </label>
+            </div>
+            <input type="hidden" name="type" id="selected-type" value="lost">
+        </div>
+
+        <!-- Item Name -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">Item Name <span class="text-red-500">*</span></label>
+            <input type="text" required name="name" placeholder="e.g., Black Leather Wallet"
+                class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition">
+        </div>
+
+        <!-- Description -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">Description <span class="text-red-500">*</span></label>
+            <textarea name="description" required rows="4"
+                placeholder="Detailed description of features, condition, contents, detail location..."
+                class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition"></textarea>
+        </div>
+
+        <!-- Date and Location -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Date <span class="text-red-500">*</span></label>
+                <input type="date" required name="date_found"
+                    class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition">
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">Location <span class="text-red-500">*</span></label>
+                <select name="location_found" required
+                    class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition">
+                    <option value="">Select a location</option>
+                    <option>Amenity Hall</option>
+                    <option>Annexe Building</option>
+                    <option>Library</option>
+                    <option>Canteen</option>
+                    <option>Main Building</option>
+                    <option>GymKhana</option>
+                    <option>Parking Lot</option>
+                    <option>Technology Bhavan</option>
+                    <option>Workshop-2</option>
+                    <option>Workshop-1</option>
+                    <option>Indus Uni. Commons</option>
+                    <option>IT Department</option>
+                    <option>Civil Department</option>
+                    <option>Mechanical Department</option>
+                    <option>Electrical Department</option>
+                    <option>Computer Department</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Tags -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">Tags (Keywords)</label>
+            <input type="text" name="tags" placeholder="Add tags (comma separated)..."
+                class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition">
+            <p class="mt-2 text-gray-500 text-sm">Use keywords to help others find your item (e.g., black, wallet, keys,
+                student ID)</p>
+        </div>
+
+        <!-- Photo -->
+        <div>
+            <label class="block text-gray-700 font-medium mb-2">Add Photo <span
+                    class="text-gray-400 font-normal">(Optional)</span></label>
+            <input type="file" name="item_photo" accept="image/*"
+                class="form-input w-full p-3 border border-gray-300 rounded-lg focus:outline-none transition">
+            <p class="mt-2 text-gray-500 text-sm">Upload clear photos from different angles to help identification</p>
+        </div>
+
+        <!-- ─── FOUND ONLY: Meetup / Handover Details ─────────────────────── -->
+        <div id="meetup-section" class="hidden bg-blue-50 border border-blue-200 rounded-xl p-6 space-y-4">
+            <div class="flex items-center gap-3 mb-1">
+                <div
+                    class="bg-blue-100 text-blue-600 h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i class="fas fa-handshake"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-blue-900">Handover / Meetup Details</h3>
+                    <p class="text-blue-700 text-sm">Let the owner know where and when they can collect their item.</p>
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-gray-700 font-medium mb-2">
+                    <i class="fas fa-map-pin mr-1.5 text-blue-500"></i> Meetup Place
+                </label>
+                <input type="text" name="meetup_place"
+                    placeholder="e.g., Library entrance, Main Gate security room, IT Dept office..."
+                    class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition bg-white">
+                <p class="mt-1 text-gray-500 text-xs">Be specific so the owner can find you easily</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">
+                        <i class="fas fa-calendar-check mr-1.5 text-blue-500"></i> Meetup Date
+                    </label>
+                    <input type="date" name="meetup_date"
+                        class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition bg-white">
+                </div>
+                <div>
+                    <label class="block text-gray-700 font-medium mb-2">
+                        <i class="fas fa-clock mr-1.5 text-blue-500"></i> Meetup Time
+                    </label>
+                    <input type="time" name="meetup_time"
+                        class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition bg-white">
+                </div>
+            </div>
+        </div>
+
+        <!-- Contact Email (Optional) -->
+        <div class="bg-gray-50 border border-gray-200 rounded-xl p-5">
+            <div class="flex items-start gap-3 mb-4">
+                <div
+                    class="bg-gray-200 text-gray-600 h-9 w-9 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-800">Contact Info <span
+                            class="text-gray-400 font-normal text-sm">(Optional)</span></h3>
+                    <p class="text-gray-500 text-sm mt-0.5">Your email is completely optional. If you skip it, people
+                        can still reach you through the meetup details above.</p>
+                </div>
+            </div>
+            <label class="block text-gray-700 font-medium mb-2">Email Address</label>
+            <input type="email" name="contact_info" placeholder="student@Indus Uni..edu (optional)"
+                class="form-input w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:outline-none transition">
+            <p class="mt-2 text-gray-500 text-xs">
+                <i class="fas fa-lock mr-1 text-green-500"></i>
+                Leaving this blank keeps you anonymous — your email will never be publicly displayed.
+            </p>
+        </div>
+
+        <!-- Submit -->
+        <div class="pt-2">
+            <button type="submit"
+                class="w-full bg-primary hover:bg-primary/90 text-white font-medium py-4 rounded-lg transition text-lg">
+                <i class="fas fa-paper-plane mr-2"></i> Submit Item
+            </button>
+        </div>
+    </form>
+
+    <!-- Tips -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-lg">
+        <div class="flex">
+            <i class="fas fa-lightbulb text-yellow-400 text-xl mr-3"></i>
+            <div>
+                <h3 class="text-lg font-medium text-yellow-800">Posting Tips</h3>
+                <ul class="mt-2 text-yellow-700 space-y-1">
+                    <li>• Be specific with item details and locations</li>
+                    <li>• Provide unique identifiers when possible</li>
+                    <li>• Include clear photos from multiple angles</li>
+                    <li>• Use relevant tags to make your post discoverable</li>
+                    <li>• If you found an item, add a meetup time & place so the owner can collect it</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Show/hide meetup section based on item type selection
+    document.addEventListener('DOMContentLoaded', function () {
+        function updateMeetupSection() {
+            const hiddenVal = document.getElementById('selected-type').value;
+            const meetupSection = document.getElementById('meetup-section');
+            if (hiddenVal === 'found') {
+                meetupSection.classList.remove('hidden');
+            } else {
+                meetupSection.classList.add('hidden');
+            }
+        }
+
+        // Observe changes to the hidden input (set by Base.js toggleItemType)
+        const hiddenInput = document.getElementById('selected-type');
+        const observer = new MutationObserver(updateMeetupSection);
+        observer.observe(hiddenInput, { attributes: true, attributeFilter: ['value'] });
+
+        // Also wire type buttons directly
+        document.querySelectorAll('.type-btn').forEach(btn => {
+            btn.addEventListener('click', function () {
+                setTimeout(updateMeetupSection, 10); // after Base.js updates hidden input
+            });
+        });
+
+        updateMeetupSection();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="max-w-4xl mx-auto">
+    <div class="mb-4">
+        <a href="{% url 'browse' %}" class="text-primary hover:underline text-sm font-medium">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Browse
+        </a>
+    </div>
+
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden">
+        <div class="relative">
+            {% if items.file %}
+            <img src="{{ items.file.url }}" alt="{{ items.name }}"
+                class="w-full h-96 object-cover border-b border-gray-200">
+            {% else %}
+            <div class="bg-gray-100 border-b border-gray-200 w-full h-72 flex items-center justify-center">
+                <i class="fas fa-image text-6xl text-gray-300"></i>
+            </div>
+            {% endif %}
+
+            <div
+                class="absolute top-4 right-4 {% if items.item_type == 'lost' %}bg-yellow-100 text-yellow-700{% else %}bg-green-100 text-green-700{% endif %} py-1.5 px-4 rounded-full text-sm font-semibold uppercase shadow">
+                {% if items.item_type == 'lost' %}
+                <i class="fas fa-exclamation-triangle mr-1"></i>
+                {% else %}
+                <i class="fas fa-check-circle mr-1"></i>
+                {% endif %}
+                {{ items.item_type }}
+            </div>
+        </div>
+
+        <div class="p-6 md:p-8">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <h1 class="text-2xl md:text-3xl font-bold mb-2">{{ items.name }}</h1>
+                    <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-gray-600 text-sm">
+                        <span class="flex items-center">
+                            <i class="fas fa-map-marker-alt mr-1.5 text-primary"></i>
+                            {{ items.location_found }}
+                        </span>
+                        <span class="flex items-center">
+                            <i class="fas fa-calendar-alt mr-1.5 text-primary"></i>
+                            {{ items.date_found|date:"F j, Y" }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="flex space-x-2">
+                    <button onclick="shareItem()"
+                        class="h-10 w-10 rounded-full border border-gray-200 flex items-center justify-center text-gray-500 hover:text-primary hover:border-primary transition"
+                        title="Share">
+                        <i class="fas fa-share-alt"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-2 text-gray-800">Description</h2>
+                <p class="text-gray-700 leading-relaxed">{{ items.description }}</p>
+            </div>
+
+            {% if tags %}
+            <div class="mb-8">
+                <h2 class="text-lg font-bold mb-3 text-gray-800">Tags</h2>
+                <div class="flex flex-wrap gap-2">
+                    {% for tag in tags %}
+                    <span class="bg-blue-50 text-blue-700 border border-blue-100 py-1 px-3 rounded-full text-sm">{{ tag
+                        }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            {% if items.item_type == 'found' and items.meetup_place or items.meetup_date or items.meetup_time %}
+            <!-- Meetup / Handover Details -->
+            <div class="mb-2">
+                <div class="bg-blue-50 border border-blue-200 rounded-xl p-5">
+                    <div class="flex items-center gap-3 mb-4">
+                        <div
+                            class="bg-blue-100 text-blue-600 h-10 w-10 rounded-full flex items-center justify-center flex-shrink-0">
+                            <i class="fas fa-handshake text-lg"></i>
+                        </div>
+                        <div>
+                            <h2 class="font-bold text-blue-900 text-lg">Handover / Meetup Details</h2>
+                            <p class="text-blue-600 text-sm">The finder has suggested a time and place to return this
+                                item.</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                        {% if items.meetup_place %}
+                        <div class="bg-white rounded-lg p-4 border border-blue-100 flex items-start gap-3">
+                            <i class="fas fa-map-pin text-blue-500 mt-0.5 flex-shrink-0"></i>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-0.5">Location
+                                </div>
+                                <div class="text-gray-800 font-semibold text-sm">{{ items.meetup_place }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if items.meetup_date %}
+                        <div class="bg-white rounded-lg p-4 border border-blue-100 flex items-start gap-3">
+                            <i class="fas fa-calendar-check text-blue-500 mt-0.5 flex-shrink-0"></i>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-0.5">Date</div>
+                                <div class="text-gray-800 font-semibold text-sm">{{ items.meetup_date|date:"l, F j, Y"
+                                    }}</div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        {% if items.meetup_time %}
+                        <div class="bg-white rounded-lg p-4 border border-blue-100 flex items-start gap-3">
+                            <i class="fas fa-clock text-blue-500 mt-0.5 flex-shrink-0"></i>
+                            <div>
+                                <div class="text-xs text-gray-500 font-medium uppercase tracking-wide mb-0.5">Time</div>
+                                <div class="text-gray-800 font-semibold text-sm">{{ items.meetup_time|time:"g:i A" }}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+
+        <div
+            class="bg-gray-50 border-t border-gray-200 p-6 flex flex-col sm:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-green-100 text-green-800 py-1 px-3 rounded-full text-xs font-medium">
+                    <i class="fas fa-check-circle mr-1"></i> ACTIVE
+                </div>
+                <div class="text-sm text-gray-500">
+                    {% if days_ago == 0 %}
+                    Posted today
+                    {% elif days_ago == 1 %}
+                    Posted 1 day ago
+                    {% else %}
+                    Posted {{ days_ago }} days ago
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="flex gap-3 flex-wrap justify-end">
+                <button onclick="reportItem()"
+                    class="bg-gray-200 hover:bg-gray-300 text-gray-700 py-2.5 px-4 rounded-lg font-medium transition text-sm">
+                    <i class="fas fa-flag mr-1.5"></i> Report
+                </button>
+                {% if items.contact_info %}
+                <a href="mailto:{{ items.contact_info }}?subject=Re: {{ items.name }} - Indus Uni. Lost %26 Found&body=Hi, I saw your post about '{{ items.name }}' on the Indus Uni. Lost %26 Found portal. I would like to get in touch regarding this item."
+                    class="bg-primary hover:bg-primary/90 text-white py-2.5 px-6 rounded-lg font-medium flex items-center gap-2 transition text-sm">
+                    <i class="fas fa-envelope"></i> Contact Poster
+                </a>
+                {% elif items.meetup_place %}
+                <div
+                    class="bg-blue-50 border border-blue-200 text-blue-700 py-2.5 px-4 rounded-lg text-sm flex items-center gap-2">
+                    <i class="fas fa-info-circle"></i> See meetup details above to connect
+                </div>
+                {% else %}
+                <div
+                    class="bg-gray-100 text-gray-400 py-2.5 px-4 rounded-lg text-sm flex items-center gap-2 cursor-default">
+                    <i class="fas fa-user-secret"></i> Poster chose to stay anonymous
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Modal -->
+<div id="report-modal" class="hidden fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl p-6 max-w-sm w-full shadow-xl">
+        <h3 class="text-lg font-bold mb-2">Report Item</h3>
+        <p class="text-gray-600 text-sm mb-4">Is this listing suspicious, duplicate, or inappropriate?</p>
+        <textarea id="report-reason" rows="3" placeholder="Briefly describe the issue..."
+            class="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-2 focus:ring-primary focus:outline-none mb-4"></textarea>
+        <div class="flex gap-3 justify-end">
+            <button onclick="closeReport()"
+                class="px-4 py-2 rounded-lg border border-gray-200 text-gray-600 text-sm hover:bg-gray-50">Cancel</button>
+            <button onclick="submitReport()"
+                class="px-4 py-2 rounded-lg bg-red-500 hover:bg-red-600 text-white text-sm font-medium">Submit
+                Report</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function shareItem() {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ items.name }} - Indus Uni. Lost & Found',
+                text: '{{ items.description|truncatewords:15 }}',
+                url: window.location.href
+            });
+        } else {
+            navigator.clipboard.writeText(window.location.href).then(() => {
+                alert('Link copied to clipboard!');
+            });
+        }
+    }
+
+    function reportItem() {
+        document.getElementById('report-modal').classList.remove('hidden');
+    }
+
+    function closeReport() {
+        document.getElementById('report-modal').classList.add('hidden');
+    }
+
+    function submitReport() {
+        const reason = document.getElementById('report-reason').value.trim();
+        if (!reason) {
+            alert('Please provide a reason for the report.');
+            return;
+        }
+        closeReport();
+        // Show thank you
+        const btn = document.querySelector('button[onclick="reportItem()"]');
+        if (btn) {
+            btn.textContent = '✓ Reported';
+            btn.disabled = true;
+            btn.classList.add('opacity-60');
+        }
+    }
+
+    // Close modal on backdrop click
+    document.getElementById('report-modal').addEventListener('click', function (e) {
+        if (e.target === this) closeReport();
+    });
+</script>
+{% endblock %}

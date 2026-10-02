@@ -1,0 +1,85 @@
+{% load static %}
+<header class="sticky top-0 z-50 backdrop-blur-sm bg-white/90 border-b border-gray-200 shadow-sm">
+    <nav class="container mx-auto px-4 sm:px-6 py-3 flex items-center justify-between">
+
+        <!-- Logo -->
+        <a href="{% url 'home' %}" class="flex items-center space-x-2">
+            <div class="bg-primary h-9 w-9 rounded-md flex items-center justify-center">
+                <i class="fas fa-search text-white text-base"></i>
+            </div>
+            <span class="text-2xl font-bold text-primary">Indus Uni. Lost &amp; Found</span>
+        </a>
+
+        <!-- Desktop Nav Links -->
+        <div class="hidden lg:flex items-center space-x-4">
+            <a href="{% url 'browse' %}"
+                class="px-3 py-2 text-gray-700 hover:text-primary font-medium transition-colors">Browse Items</a>
+            <a href="{% url 'post' %}"
+                class="px-3 py-2 text-gray-700 hover:text-primary font-medium transition-colors">Post Item</a>
+            {% if is_admin %}
+            <a href="{% url 'dashboard' %}"
+                class="px-3 py-2 text-blue-600 hover:text-blue-800 font-bold transition-colors flex items-center gap-1.5 bg-blue-50 rounded-lg">
+                <i class="fas fa-user-shield"></i> Admin Dashboard
+            </a>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="flex items-center space-x-3">
+            <a href="{% url 'post' %}"
+                class="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-md font-medium items-center hidden md:flex">
+                <i class="fas fa-plus-circle mr-2"></i> Post Item
+            </a>
+
+            {% if request.user.is_authenticated %}
+            <div class="flex items-center gap-2">
+                {% if is_admin %}
+                <a href="{% url 'dashboard' %}"
+                    class="text-sm font-semibold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg border border-blue-100 hover:bg-blue-100 transition hidden md:flex items-center gap-1.5">
+                    <i class="fas fa-shield-alt"></i> Dashboard
+                </a>
+                {% endif %}
+                <span class="text-sm text-gray-600 hidden md:block">Hi, 
+                    {{ request.user.first_name|default:request.user.username }}</span>
+                <a href="{% url 'change_password' %}"
+                    class="bg-gray-100 hover:bg-blue-100 hover:text-blue-600 h-10 px-3 rounded-full flex items-center justify-center text-gray-700 text-sm font-medium transition"
+                    title="Change Password">
+                    <i class="fas fa-key"></i>
+                </a>
+                <a href="{% url 'logout' %}"
+                    class="bg-gray-100 hover:bg-red-100 hover:text-red-600 h-10 px-3 rounded-full flex items-center justify-center text-gray-700 text-sm font-medium transition"
+                    title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </a>
+            </div>
+            {% else %}
+            <a href="{% url 'login' %}"
+                class="bg-gray-100 hover:bg-gray-200 h-10 w-10 rounded-full flex items-center justify-center"
+                title="Login">
+                <i class="fas fa-user text-gray-700"></i>
+            </a>
+            {% endif %}
+
+            <button id="mobile-menu-button"
+                class="lg:hidden bg-gray-100 hover:bg-gray-200 h-10 w-10 rounded-md flex items-center justify-center">
+                <i class="fas fa-bars text-gray-700"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-gray-100 bg-white px-4 py-3 shadow-md">
+        <div class="flex flex-col space-y-2">
+            <a href="{% url 'browse' %}"
+                class="py-2 text-gray-700 hover:text-primary px-2 rounded-md transition-colors">Browse Items</a>
+            <a href="{% url 'post' %}"
+                class="py-2 text-gray-700 hover:text-primary px-2 rounded-md transition-colors">Post Item</a>
+            {% if is_admin %}
+            <a href="{% url 'dashboard' %}"
+                class="py-2 text-blue-600 hover:text-blue-800 font-bold px-2 rounded-md transition-colors bg-blue-50">
+                <i class="fas fa-user-shield mr-1"></i> Admin Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</header>
