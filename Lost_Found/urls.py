@@ -1,7 +1,8 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.static import serve
 from base import views
 
 urlpatterns = [
@@ -23,4 +24,6 @@ urlpatterns = [
     path('privacy/', views.privacy, name='privacy'),
     path('api/recent-items/', views.api_recent_items, name='api_recent_items'),
     path('api/stats/', views.api_stats, name='api_stats'),
-] + static(settings.MEDIA_URL, document_root=getattr(settings, 'MEDIA_ROOT', ''))
+    re_path(r'^media/(?P<path>.*)$', serve, {'document_root': getattr(settings, 'MEDIA_ROOT', settings.BASE_DIR / 'media')}),
+]
+
