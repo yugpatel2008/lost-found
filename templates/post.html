@@ -28,7 +28,7 @@
             <div class="flex gap-4">
                 <label
                     class="type-btn type-lost flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
-                    <input type="radio" name="item_type" value="lost" class="hidden" checked>
+                    <input type="radio" name="item_type_radio" value="lost" class="hidden" checked>
                     <div class="flex flex-col items-center">
                         <i class="fas fa-exclamation-triangle text-2xl mb-2"></i>
                         <span>I've Lost an Item</span>
@@ -38,7 +38,7 @@
 
                 <label
                     class="type-btn type-found flex-1 py-4 px-4 rounded-lg font-medium text-center transition-all cursor-pointer bg-gray-100 text-gray-600">
-                    <input type="radio" name="item_type" value="found" class="hidden">
+                    <input type="radio" name="item_type_radio" value="found" class="hidden">
                     <div class="flex flex-col items-center">
                         <i class="fas fa-check-circle text-2xl mb-2"></i>
                         <span>I've Found an Item</span>
@@ -46,8 +46,9 @@
                     </div>
                 </label>
             </div>
-            <input type="hidden" name="type" id="selected-type" value="lost">
+            <input type="hidden" name="item_type" id="selected-type" value="lost">
         </div>
+
 
         <!-- Item Name -->
         <div>

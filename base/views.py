@@ -77,10 +77,12 @@ def item_detail(request, item_id):
 @login_required(login_url='login')
 def post(request):
     if request.method == 'POST':
-        item_type = request.POST.get('item_type', '').strip().lower()
+        item_type = (request.POST.get('item_type') or request.POST.get('type') or 'lost').strip().lower()
         if item_type not in ['lost', 'found']:
             messages.error(request, "Invalid item type. Please select 'lost' or 'found'.")
             return render(request, 'post.html')
+
+
 
         name           = request.POST.get('name', '').strip()
         description    = request.POST.get('description', '').strip()
