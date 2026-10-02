@@ -71,7 +71,7 @@ WSGI_APPLICATION = 'Lost_Found.wsgi.application'
 
 # ─── Database (PostgreSQL on Render, fast SQLite locally) ───────────────────
 _db_url = config('DATABASE_URL', default='')
-if _db_url and (not DEBUG or config('USE_POSTGRES_LOCALLY', default=False, cast=bool)):
+if _db_url:
     DATABASES = {
         'default': dj_database_url.config(
             default=_db_url,
@@ -86,6 +86,7 @@ else:
             'NAME': BASE_DIR / 'db.sqlite3',
         }
     }
+
 
 # ─── Password Validation ─────────────────────────────────────────────────────
 AUTH_PASSWORD_VALIDATORS = [
