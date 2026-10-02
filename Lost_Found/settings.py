@@ -13,16 +13,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='django-insecure-default-key-change-in-production')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,.onrender.com', cast=Csv())
+raw_hosts = config('ALLOWED_HOSTS', default='*', cast=Csv())
+ALLOWED_HOSTS = []
+for h in raw_hosts:
+    clean_h = h.strip().replace('https://', '').replace('http://', '').split('/')[0]
+    if clean_h and clean_h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(clean_h)
+
+for default_host in ['.onrender.com', 'localhost', '127.0.0.1', '*']:
+    if default_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(default_host)
+
 RENDER_EXTERNAL_HOSTNAME = config('RENDER_EXTERNAL_HOSTNAME', default='')
-if RENDER_EXTERNAL_HOSTNAME and RENDER_EXTERNAL_HOSTNAME not in ALLOWED_HOSTS:
-    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+if RENDER_EXTERNAL_HOSTNAME:
+    clean_render_host = RENDER_EXTERNAL_HOSTNAME.replace('https://', '').replace('http://', '').split('/')[0]
+    if clean_render_host not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(clean_render_host)
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000', cast=Csv())
-if RENDER_EXTERNAL_HOSTNAME:
-    https_origin = f'https://{RENDER_EXTERNAL_HOSTNAME}'
-    if https_origin not in CSRF_TRUSTED_ORIGINS:
-        CSRF_TRUSTED_ORIGINS.append(https_origin)
+for host in ALLOWED_HOSTS:
+    if host and host != '*':
+        origin = f"https://{host}" if not host.startswith('.') else f"https://*{host}"
+        if origin not in CSRF_TRUSTED_ORIGINS:
+            CSRF_TRUSTED_ORIGINS.append(origin)
+
 
 
 # ─── Applications ────────────────────────────────────────────────────────────
